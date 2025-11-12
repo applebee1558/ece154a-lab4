@@ -101,7 +101,7 @@ end
 
 // TO DO: Generate properly PCSrc by replacing all `z` values with the correct values
 
-assign PCSrc_o = 1'bz; 
+assign PCSrc_o = (1'b0 | (Jump|Branch)); 
 
 endmodule
 
