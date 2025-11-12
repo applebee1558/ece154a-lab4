@@ -50,7 +50,7 @@ module ucsbece154a_controller (
 	instr_Rtype_op:     controls = 12'b1_xxx_0_0_00_0_10_0;   
 	instr_beq_op:       controls = 12'b0_010_0_0_xx_1_01_0;   
 	instr_ItypeALU_op:  controls = 12'b1_000_1_0_00_0_10_0;
-    instr_jal_op: controls = 12'b1_011_1_0_10_0_10_1;
+    instr_jal_op:       controls = 12'b1_011_1_0_10_0_10_1;
     instr_lui_op:       controls = 12'b1_100_1_0_11_0_10_0;
 	default:            controls = 12'bx_xxx_x_x_xx_0_xx_x;
 

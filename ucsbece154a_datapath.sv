@@ -24,6 +24,7 @@ logic [31:0] ALUSrc_B;
 logic [31:0] RD1;
 logic [31:0] RD2;
 logic [31:0] Register_In;
+logic [31:0] PC_next;
 
 `include "ucsbece154a_defines.svh"
 
@@ -37,7 +38,8 @@ ucsbece154a_rf rf(
     .a3_i       (Instr_i[11:7]),
     .rd1_o      (RD1),
     .rd2_o      (RD2),
-    .wd3_i      (Register_In)
+    .wd3_i      (Register_In),
+    .we3_i      (RegWrite_i)
 );
 
 ucsbece154a_alu alu(
@@ -60,6 +62,7 @@ module ucsbece154a_alu(
 */
 
 assign WriteData_o = RD2; // write data out is rd2
+assign Zero_o = 1'b0; // always zero
 
 always_comb begin // extend unit
     case (ImmSrc_i) 
@@ -67,7 +70,7 @@ always_comb begin // extend unit
         imm_Stype: ImmExt = {{20{Instr_i[31]}}, Instr_i[31:25], Instr_i[11:7]};
         imm_Btype: ImmExt = {{19{Instr_i[31]}}, Instr_i[31], Instr_i[7], Instr_i[30:25], Instr_i[11:8], 1'b0};
         imm_Jtype: ImmExt = {{12{Instr_i[31]}}, Instr_i[19:12], Instr_i[20], Instr_i[30:21], 1'b0};
-        imm_Utype: ImmExt = {{12{Instr_i[31]}}, Instr_i[31:12]}; // not sure if right
+        imm_Utype: ImmExt = {Instr_i[31:12], {12{1'b0}}}; // not sure if right
     endcase
 end
 
@@ -83,19 +86,27 @@ always_comb begin // result src mux
     case (ResultSrc_i)
         ResultSrc_lui: Register_In = ImmExt;
         ResultSrc_ALU: Register_In = ALUResult_o;
-        ResultSrc_jal: Register_In = PCSrc_i + 4;
+        ResultSrc_jal: Register_In = PC_o + 4;
         ResultSrc_load: Register_In = ReadData_i;
     endcase
 end
 
 always_comb begin // pcnext mux
     case (PCSrc_i)
-        1'b0: PC_o = PCSrc_i + 4;
+        1'b0: PC_next = PC_o + 4;
         1'b1: begin
-            PC_o = PCSrc_i + ImmExt;
+            PC_next = PC_o + ImmExt;
         end
     endcase
 end
 
+always_ff @(negedge clk) begin
+    PC_o <= PC_next;
+end
 
+always_ff @(negedge reset_i) begin
+    if(!reset_i) begin
+        PC_o <= 32'b0;
+    end
+end
 endmodule

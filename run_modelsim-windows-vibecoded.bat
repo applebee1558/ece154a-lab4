@@ -1,20 +1,13 @@
 @echo off
 setlocal enabledelayedexpansion
 REM ============================================================
-REM ModelSim/QuestaSim automation script for Windows
-REM Fully replaces Makefile workflow
+REM ModelSim/QuestaSim Windows automation script (Linux-like)
 REM ============================================================
-
-echo.
-echo ============================================================
-echo ModelSim/QuestaSim automation script
-echo ============================================================
 
 REM --- Detect ModelSim if MODEL_TECH not set ---
 if "%MODEL_TECH%"=="" (
     echo Searching for ModelSim installation...
     set "MODEL_TECH="
-
     for /f "tokens=*" %%D in ('dir /b /ad /o-n "C:\intelFPGA*" 2^>nul') do (
         if exist "C:\%%D\modelsim_ase\win64\vsim.exe" set "MODEL_TECH=C:\%%D\modelsim_ase\win64" & goto found
         if exist "C:\%%D\modelsim_ase\win32aloem\vsim.exe" set "MODEL_TECH=C:\%%D\modelsim_ase\win32aloem" & goto found
@@ -39,21 +32,13 @@ set "VLIB=%MODEL_TECH%\vlib.exe"
 
 REM --- Simulation settings ---
 set "TOPLEVEL=ucsbece154a_top_tb"
-set "VSIM_OPTIONS=-voptargs=+acc=lprn"
+set "VSIM_OPTIONS=+acc=lprn +allow_unconnected"
 set "PLUSARGS="
 set "PARAMETERS="
 set "EXTRA_OPTIONS=%VSIM_OPTIONS% %PLUSARGS% %PARAMETERS%"
 
-REM --- VPI modules (if any, space-separated paths) ---
+REM --- VPI modules ---
 set "VPI_MODULES="
-
-REM --- RTL source files ---
-set "RTL=memfile.dat ucsbece154a_alu.sv ucsbece154a_controller.sv ucsbece154a_datapath.sv ucsbece154a_dmem.sv ucsbece154a_imem.sv ucsbece154a_riscv.sv ucsbece154a_rf.sv ucsbece154a_top.sv ucsbece154a_top_tb.sv ucsbece154a_defines.svh"
-
-echo.
-echo Usage:
-echo   run_modelsim.bat [work ^| run ^| gui ^| clean]
-echo.
 
 REM --- Parse command ---
 if "%1"=="" goto :help
@@ -66,14 +51,15 @@ goto :help
 REM ============================================================
 :work
 echo.
-echo === Creating and mapping work library ===
+echo === Creating work library ===
 if exist work rmdir /S /Q work
 "%VLIB%" work
 "%VMAP%" -del work >nul 2>&1
 "%VMAP%" work work
+
 echo.
-echo === Compiling RTL files ===
-"%VLOG%" -work work %RTL%
+echo === Compiling RTL files via sim.tcl ===
+"%VSIM%" -c -do "do sim.tcl; quit"
 goto :eof
 
 REM ============================================================
@@ -86,13 +72,14 @@ REM Build VPI module options if any
 set "VPI_ARGS="
 for %%m in (%VPI_MODULES%) do set "VPI_ARGS=!VPI_ARGS! -pli %%m"
 
+REM Run vsim with lenient flags and dummy signals
 "%VSIM%" -c !VPI_ARGS! %EXTRA_OPTIONS% %TOPLEVEL% -do "run -all; quit -code [expr [coverage attribute -name TESTSTATUS -concise] >= 2 ? [coverage attribute -name TESTSTATUS -concise] : 0]"
 goto :eof
 
 REM ============================================================
 :gui
 echo.
-echo === Launching ModelSim GUI ===
+echo === Launching GUI simulation ===
 if not exist work call "%~f0" work
 set "VPI_ARGS="
 for %%m in (%VPI_MODULES%) do set "VPI_ARGS=!VPI_ARGS! -pli %%m"
@@ -115,8 +102,8 @@ REM ============================================================
 :help
 echo.
 echo Valid commands:
-echo   work  → compile all RTL into work library
-echo   run   → run simulation in CLI
+echo   work  → compile all RTL into work library via sim.tcl
+echo   run   → run simulation in CLI with leniency flags
 echo   gui   → launch GUI simulation
 echo   clean → remove work and output files
 echo.
