@@ -26,6 +26,7 @@ logic [31:0] RD2;
 logic [31:0] Register_In;
 logic [31:0] PC_next;
 
+logic alu_overflow, alu_carry, alu_negative
 `include "ucsbece154a_defines.svh"
 
 /// Your code here
@@ -47,7 +48,10 @@ ucsbece154a_alu alu(
     .b          (ALUSrc_B),
     .f          (ALUControl_i),
     .result     (ALUResult_o),
-    .zero       (Zero_o)
+    .zero       (Zero_o),
+    .overflow   (alu_overflow),
+    .carry      (alu_carry),
+    .negative   (alu_negative)
 );
 /*
 module ucsbece154a_alu(
@@ -71,6 +75,7 @@ always_comb begin // extend unit
         imm_Btype: ImmExt = {{19{Instr_i[31]}}, Instr_i[31], Instr_i[7], Instr_i[30:25], Instr_i[11:8], 1'b0};
         imm_Jtype: ImmExt = {{12{Instr_i[31]}}, Instr_i[19:12], Instr_i[20], Instr_i[30:21], 1'b0};
         imm_Utype: ImmExt = {Instr_i[31:12], {12{1'b0}}}; // not sure if right
+        default: ImmExt = 32'b0; // prevent latch inferring (for lint/synthesis test) 
     endcase
 end
 
