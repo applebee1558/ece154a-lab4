@@ -26,7 +26,7 @@ logic [31:0] RD2;
 logic [31:0] Register_In;
 logic [31:0] PC_next;
 
-logic alu_overflow, alu_carry, alu_negative
+logic alu_overflow, alu_carry, alu_negative;//not used for now, add to pass lint
 `include "ucsbece154a_defines.svh"
 
 /// Your code here
