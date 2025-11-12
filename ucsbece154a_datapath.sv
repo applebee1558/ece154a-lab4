@@ -46,7 +46,8 @@ ucsbece154a_alu alu(
     .a          (RD1),
     .b          (ALUSrc_B),
     .f          (ALUControl_i),
-    .result     (ALUResult_o)
+    .result     (ALUResult_o),
+    .zero       (Zero_o)
 );
 /*
 module ucsbece154a_alu(
@@ -62,7 +63,6 @@ module ucsbece154a_alu(
 */
 
 assign WriteData_o = RD2; // write data out is rd2
-assign Zero_o = 1'b0; // always zero
 
 always_comb begin // extend unit
     case (ImmSrc_i) 
