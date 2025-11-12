@@ -37,7 +37,7 @@ ucsbece154a_rf rf(
     .a3_i       (Instr_i[11:7]),
     .rd1_o      (RD1),
     .rd2_o      (RD2),
-    .wd3_i      (Register_In),
+    .wd3_i      (Register_In)
 );
 
 ucsbece154a_alu alu(
