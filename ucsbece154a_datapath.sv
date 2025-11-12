@@ -39,6 +39,7 @@ ucsbece154a_rf rf(
     .rd2_o      (RD2),
     .wd3_i      (Register_In),
 );
+
 ucsbece154a_alu alu(
     .a          (RD1),
     .b          (ALUSrc_B),
@@ -97,5 +98,4 @@ always_comb begin // pcnext mux
 end
 
 
-assign PC_o = PCSrc_i + 4; // change this later...
 endmodule
