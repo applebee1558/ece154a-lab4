@@ -62,11 +62,11 @@ assign WriteData_o = RD2; // write data out is rd2
 
 always_comb begin // extend unit
     case (ImmSrc_i) 
-        imm_Itype: ImmExt = {{20{instr[31]}}, instr[31:20]};
-        imm_Stype: ImmExt = {{20{instr[31]}}, instr[31:25], instr[11:7]};
-        imm_Btype: ImmExt = {{19{instr[31]}}, instr[31], instr[7], instr[30:25], instr[11:8], 1'b0};
-        imm_Jtype: ImmExt = {{12{instr[31]}}, instr[19:12], instr[20], instr[30:21], 1'b0};
-        imm_Utype: ImmExt = {{12{instr[31]}}, instr[31:12]}; // not sure if right
+        imm_Itype: ImmExt = {{20{Instr_i[31]}}, Instr_i[31:20]};
+        imm_Stype: ImmExt = {{20{Instr_i[31]}}, Instr_i[31:25], Instr_i[11:7]};
+        imm_Btype: ImmExt = {{19{Instr_i[31]}}, Instr_i[31], Instr_i[7], Instr_i[30:25], Instr_i[11:8], 1'b0};
+        imm_Jtype: ImmExt = {{12{Instr_i[31]}}, Instr_i[19:12], Instr_i[20], Instr_i[30:21], 1'b0};
+        imm_Utype: ImmExt = {{12{Instr_i[31]}}, Instr_i[31:12]}; // not sure if right
     endcase
 end
 
