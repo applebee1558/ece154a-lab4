@@ -35,8 +35,8 @@ module ucsbece154a_controller (
  assign {RegWrite_o,	
 	ImmSrc_o, 
         ALUSrc_o, // 0 is register 1 is immediate
-        MemWrite_o,
-        ResultSrc_o,
+        MemWrite_o, // 0 to not write 1 to write
+        ResultSrc_o, 
 	Branch, 
 	ALUOp,
 	Jump} = controls;
@@ -44,7 +44,7 @@ module ucsbece154a_controller (
 
  always_comb begin
    case (op_i)
-
+    // implemented main decoder control signals based on the instruction type. Have a default value to prevent latch inferring
 	instr_lw_op:        controls = 12'b1_000_1_0_01_0_00_0;       // reg write, immsrc, alusrc, memwrite, resultsrc, branch, aluop, jump
 	instr_sw_op:        controls = 12'b0_001_1_1_xx_0_00_0;  
 	instr_Rtype_op:     controls = 12'b1_xxx_0_0_00_0_10_0;   
@@ -69,7 +69,7 @@ logic RtypeSub;
 assign RtypeSub = funct7b5_i & op_i[5];
 
 always_comb begin
-    case(ALUOp)
+    case(ALUOp) // implemented alu control signals based on the aluop code and funct3 code. Have a default value to prevent latch inferring
         ALUop_mem:                 ALUControl_o = ALUcontrol_add;
         ALUop_beq:                 ALUControl_o = ALUcontrol_sub;
         ALUop_other: 
