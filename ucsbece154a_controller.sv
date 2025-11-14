@@ -101,7 +101,7 @@ end
 
 // TO DO: Generate properly PCSrc by replacing all `z` values with the correct values
 
-assign PCSrc_o = (1'b0 | Jump | (Branch & Zero_i) ); 
+assign PCSrc_o = (1'b0 | Jump | (Branch & Zero_i) ); // PC source is just default + 4 unless we branch or jump, which then use immediate value
 
 endmodule
 
